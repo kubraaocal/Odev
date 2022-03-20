@@ -1,0 +1,22 @@
+{
+  "name": "nodejsapi",
+  "version": "1.0.0",
+  "description": "Restful Api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "api"
+  ],
+  "author": "kubra",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "get-pixels": "^3.3.3",
+    "imagejs": "^0.0.9",
+    "multer": "^1.4.4",
+    "nodemon": "^2.0.15"
+  }
+}
