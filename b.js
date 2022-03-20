@@ -53,11 +53,21 @@ app.get('/', (req, res) => {
                                 a = color.a
 
 
-                                let mod34 = b % 34;
+                                let mod34R = r % 34;
+                                let mod34G = g % 34;
+                                let mod34B = b % 34;
+                                let mod34A = a % 34;
                                 //console.log("B pixel değeri ilk başta ", b, " idi. ", "Mod34 : ", mod34, " Benim şifrelediğim : ", kacinciSirada)
-                                let fark = mod34 - kacinciSirada
+                                let farkR = mod34R - kacinciSirada
+                                let farkG = mod34G - kacinciSirada
+                                let farkB = mod34B - kacinciSirada
+                                let farkA = mod34A - kacinciSirada
 
-                                b -= fark
+                                r -= farkR
+                                g -= farkG
+                                b -= farkB
+                                a -= farkA
+
                                 //console.log("fark : ", fark, " B yeni değer : ", b)
                                 bitmap.setPixel(x, y, r, g, b, a);
 
