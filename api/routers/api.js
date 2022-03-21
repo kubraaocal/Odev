@@ -13,10 +13,6 @@ const storage = multer.diskStorage({
     }
 });
 const uploadImg = multer({ storage: storage }).single('image');
-
-
-
-
 router.use(
     express.urlencoded({
         extended: true
@@ -28,9 +24,9 @@ router.use(express.json())
 //single neden gerekli
 //şu aşağıdaki kod nasıl daha iyi yazılır.
 
-router.post('/loadImage', uploadImg, (req, res, next) => {//Biz burada neden image oraya yazıyoruz
+router.post('/loadImage', uploadImg, async(req, res) => {//Biz burada neden image oraya yazıyoruz
     if (res.status(200)) {
-        fs.writeFile('./uploads/metin.txt', req.body.message, (err) => {
+        fs.appendFileSync('./uploads/metin.txt', req.body.message, (err) => {
             if (err)
                 throw err;
         });

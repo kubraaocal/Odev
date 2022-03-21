@@ -13,6 +13,7 @@
   "author": "kubra",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.3",
     "get-pixels": "^3.3.3",
     "imagejs": "^0.0.9",
