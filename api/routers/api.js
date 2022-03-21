@@ -24,7 +24,7 @@ router.use(express.json())
 //single neden gerekli
 //şu aşağıdaki kod nasıl daha iyi yazılır.
 
-router.post('/loadImage', uploadImg, async(req, res) => {//Biz burada neden image oraya yazıyoruz
+router.post('/loadImage', async(req, res) => {//Biz burada neden image oraya yazıyoruz
     if (res.status(200)) {
         fs.appendFileSync('./uploads/metin.txt', req.body.message, (err) => {
             if (err)
