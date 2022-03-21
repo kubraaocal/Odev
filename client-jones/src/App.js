@@ -27,11 +27,39 @@ const App = () => {
 
     }
 
+    const Encoder = async (e) => {
+        const LOCALHOST = process.env.REACT_APP_LOCALHOST
+        try {
+            const res = await axios.get(
+                `${LOCALHOST}/encoder`,
+            );
+            console.log(
+                JSON.stringify(res));
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
+    const Decoder = async (e) => {
+        const LOCALHOST = process.env.REACT_APP_LOCALHOST
+        try {
+            const res = await axios.get(
+                `${LOCALHOST}/decoder`,
+            );
+            alert("Şifrelenen mesaj: "+
+                JSON.stringify(res.data.mes));
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
     return (
         <div>
             <input type="text" placeholder='Enter ur text' onChange={(e) => setText(e.target.value)} />
             <input type="file" name="file" id="file" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
             <button onClick={UploadImage}>Upload Image</button>
+            <button onClick={Encoder}>Encoder</button>
+            <button onClick={Decoder}>Decoder</button>
         </div>
     )
 }
