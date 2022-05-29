@@ -1,54 +1,53 @@
 const express = require('express');
-const multer = require('multer');
-const router = express.Router();
-const ImageJS = require('imagejs')
+const app = express();
+const api = require('./api/routers/api');
+const cors = require('cors')
+const fileupload = require("express-fileupload");
+const bodyParser = require('body-parser');
 const fs = require('fs');
+const ImageJS = require('imagejs');
 let bitmap = new ImageJS.Bitmap();
 
 
-const storage = multer.diskStorage({
-    destination: './uploads',
-    filename: function (req, file, cb) {
-        cb(null, "image.png");
-    }
-});
-const uploadImg = multer({ storage: storage }).single('image');
-router.use(
-    express.urlencoded({
-        extended: true
-    })
-)
+/* Değişiklik Sonrası */
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileupload());
+app.use(cors({
+    origin: '*',
+}));
 
-router.use(express.json())
-//bunlar ne bilmiyorum
-//single neden gerekli
-//şu aşağıdaki kod nasıl daha iyi yazılır.
+const newpath = __dirname + "/uploads/";
 
-router.post('/loadImage', async(req, res) => {//Biz burada neden image oraya yazıyoruz
-    if (res.status(200)) {
-        fs.appendFileSync('./uploads/metin.txt', req.body.message, (err) => {
-            if (err)
-                throw err;
-        });
+app.post('/upload', (req, res) => {
+    const file = req.files.file;
+    const filename = "image.png";
+    const text = req.body.text;
+
+    file.mv(`${newpath}${filename}`, (err) => {
+        if (err) {
+            res.status(500).send({ message: "File upload failed", code: 200 });
+        }
+        //res.status(200).json({ message: "File Uploaded", code: 200 }); burası açık olunca
+        //Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client hatası veriyor.
+    });
+
+    fs.writeFile(`${newpath}metin.txt`, text, (err) => {
+        if (err) {
+            throw err;
+        }
         return res.json({ message: 'dosyaya ekleme yapıldı' });
-    }
-    else {
-        return res.json({
-            message: "hataa"
-        })
-    }
+    });
 })
 
-
-let r, g, b
-router.get('/encoder', (req, res, next) => {
+app.get('/encoder', (req, res) => {
     let array = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
         'o', 'p', 'r', 's', 't', 'u', 'v', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ']
-    fs.readFile("uploads/metin.txt", 'utf-8', function (err, data) {
+    fs.readFile(`${newpath}metin.txt`, 'utf-8', function (err, data) {
         if (err)
             console.log(err);
         else {
-            bitmap.readFile("uploads/image.png")
+            bitmap.readFile(`${newpath}image.png`)
                 .then(function (er) {
                     if (er)
                         console.log(er)
@@ -68,9 +67,12 @@ router.get('/encoder', (req, res, next) => {
                         for (let y = 0; y < bitmap.height; y++) {
                             for (let x = 0; x < bitmap.width; x++) {
                                 if (sifrelenenIndis == uzunluk) {
-                                    bitmap.writeFile("uploads/encode.png", { quality: 75 })
+                                    bitmap.writeFile(`${newpath}encode.png`, { quality: 75 })
                                         .then(function () {
-                                            res.status(200).json({ message: "Bitti" })
+                                            res.setHeader('Content-Type', 'image/png');
+                                            res.sendFile(__dirname+"/uploads/encode.png")
+                                            res.status(200).json({ message: "Bitti"})
+                                            res.end();
                                         });
                                     return;
                                 }
@@ -95,7 +97,7 @@ router.get('/encoder', (req, res, next) => {
                                 let mod34R = r % 34;
                                 let mod34B = b % 34;
 
-                                console.log("r pixel değeri ilk başta ", r, " idi. ", "Mod34 : ", mod34R, " Benim şifrelediğim : ", kelimeUzunluguKacinciSirada)
+                                //console.log("r pixel değeri ilk başta ", r, " idi. ", "Mod34 : ", mod34R, " Benim şifrelediğim : ", kelimeUzunluguKacinciSirada)
 
                                 let farkR = mod34R - kelimeUzunluguKacinciSirada
                                 let farkB = mod34B - kacinciSirada
@@ -109,7 +111,7 @@ router.get('/encoder', (req, res, next) => {
 
                                 bitmap.setPixel(x, y, r, g, b, a);
                                 //console.log("fark : ", farkB)
-                                console.log(bitmap.getPixel(x, y, color))
+                                //console.log(bitmap.getPixel(x, y, color))
 
                                 //console.log("heh: ",bitmap.getPixel(x,y, color))
 
@@ -123,18 +125,17 @@ router.get('/encoder', (req, res, next) => {
                 })
         }
     })
-
 })
 
-router.get('/decoder', (req, res, next) => {
+app.get('/decoder', (req, res) => {
+    let sifrelenenMesaj="";
     let array = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
         'o', 'p', 'r', 's', 't', 'u', 'v', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ']
-    bitmap.readFile("uploads/encode.png")
+    bitmap.readFile(`${newpath}encode.png`)
         .then(function (er) {
             if (er)
                 console.log(er)
             else {
-                let sifrelenenMesaj = "";
                 let color = {};
                 color = bitmap.getPixel(0, 0, color)
                 r = color.r
@@ -147,13 +148,12 @@ router.get('/decoder', (req, res, next) => {
                         sifrelenenMesaj += array[b % 34]
                     }
                 }
-                console.log(sifrelenenMesaj)
-
+                //console.log(sifrelenenMesaj)
             }
+            return res.status(200).json({mes:sifrelenenMesaj})
         })
-    res.status(200).json({
-        message: "Şifre çözüldü"
-    })
+         
 })
 
-module.exports = router;
+module.exports = app;
+

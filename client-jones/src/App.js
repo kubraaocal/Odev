@@ -31,10 +31,11 @@ const App = () => {
         const LOCALHOST = process.env.REACT_APP_LOCALHOST
         try {
             const res = await axios.get(
-                `${LOCALHOST}/encoder`,
+                `${LOCALHOST}/encoder`
             );
             console.log(
                 JSON.stringify(res));
+                document.getElementById('image').src=""
         } catch (ex) {
             console.log(ex);
         }
@@ -60,6 +61,7 @@ const App = () => {
             <button onClick={UploadImage}>Upload Image</button>
             <button onClick={Encoder}>Encoder</button>
             <button onClick={Decoder}>Decoder</button>
+            <img id='image'/>
         </div>
     )
 }
